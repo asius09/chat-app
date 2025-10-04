@@ -1,9 +1,9 @@
-import express from 'express';
-import { config } from './src/config.js';
-import { connectDB } from './db.js';
-import { Server } from 'socket.io';
-import { errorHandler } from '@/middlewares/errorHandler.js';
+import express from "express";
 import http from 'http';
+import { Server } from 'socket.io';
+import { config } from '../../config.js';
+import { connectDB } from './db.js';
+import { errorHandler } from "./src/middlewares/errorHandler.js"
 
 const PORT = config.PORT;
 
@@ -14,7 +14,6 @@ app.use(express.json());
 // Register your routes here
 // e.g. app.use('/api/users', userRoutes);
 
-// Error handler middleware (should be after all routes)
 app.use(errorHandler);
 
 const httpServer = http.createServer(app);

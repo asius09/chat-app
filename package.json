@@ -1,0 +1,31 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "this is the chat app mono repo",
+  "homepage": "https://github.com/asius09/chat-app#readme",
+  "bugs": {
+    "url": "https://github.com/asius09/chat-app/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asius09/chat-app.git"
+  },
+  "license": "ISC",
+  "author": "asius",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:browser": "npm run dev --workspace browser",
+    "dev:mobile": "npm run start --workspace mobile",
+    "dev:backend": "npm run dev --workspace backend"
+  },
+  "dependencies": {
+    "@types/node": "^24.6.2",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.37.0",
+    "typescript": "^5.9.3"
+  }
+}

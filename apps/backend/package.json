@@ -1,16 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "backend for chat app",
-  "license": "ISC",
-  "author": "asius",
   "type": "module",
   "main": "app.ts",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
     "dev": "nodemon app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "prettier": "prettier --check .",
     "prettier:write": "prettier --write ."
   },
