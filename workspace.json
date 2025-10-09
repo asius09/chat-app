@@ -1,0 +1,32 @@
+{
+  "name": "chat-app-workspace",
+  "version": "1.0.0",
+  "description": "Chat application monorepo workspace configuration",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:browser\"",
+    "dev:backend": "npm run dev --workspace=@chat-app/backend",
+    "dev:browser": "npm run dev --workspace=@chat-app/browser",
+    "dev:mobile": "npm run start --workspace=@chat-app/mobile",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=@chat-app/backend",
+    "build:browser": "npm run build --workspace=@chat-app/browser",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "type-check": "npm run type-check --workspaces",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist packages/*/dist",
+    "install:all": "npm install && npm install --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

@@ -1,103 +1,296 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState, useEffect } from 'react';
+import { MessageCircle, Phone, Video, MoreVertical, Search, Plus } from 'lucide-react';
+import type { Chat, Message } from '@chat-app/types';
+
+const mockChats: Chat[] = [
+  {
+    id: '1',
+    name: 'John Doe',
+    type: 'direct',
+    participants: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: '1',
+    lastMessageAt: new Date(),
+  },
+  {
+    id: '2',
+    name: 'Team Chat',
+    type: 'group',
+    participants: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: '1',
+    lastMessageAt: new Date(),
+  },
+  {
+    id: '3',
+    name: 'Jane Smith',
+    type: 'direct',
+    participants: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: '1',
+    lastMessageAt: new Date(),
+  },
+];
+
+const mockMessages: Message[] = [
+  {
+    id: '1',
+    content: 'Hey! How are you doing?',
+    senderId: '2',
+    chatId: '1',
+    type: 'text',
+    timestamp: new Date(Date.now() - 3600000),
+    isRead: true,
+  },
+  {
+    id: '2',
+    content: "I'm doing great! Thanks for asking. How about you?",
+    senderId: '1',
+    chatId: '1',
+    type: 'text',
+    timestamp: new Date(Date.now() - 3500000),
+    isRead: true,
+  },
+  {
+    id: '3',
+    content: 'Pretty good! Just working on some new projects.',
+    senderId: '2',
+    chatId: '1',
+    type: 'text',
+    timestamp: new Date(Date.now() - 3400000),
+    isRead: true,
+  },
+  {
+    id: '4',
+    content: 'That sounds exciting! What kind of projects?',
+    senderId: '1',
+    chatId: '1',
+    type: 'text',
+    timestamp: new Date(Date.now() - 300000),
+    isRead: false,
+  },
+];
+
+export default function ChatApp() {
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(mockChats[0]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<Message[]>(mockMessages);
+
+  const filteredChats = mockChats.filter(chat =>
+    chat.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleSendMessage = () => {
+    if (message.trim() && selectedChat) {
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        content: message.trim(),
+        senderId: '1', // Current user
+        chatId: selectedChat.id,
+        type: 'text',
+        timestamp: new Date(),
+        isRead: false,
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      setMessage('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-gray-900">Chats</h1>
+            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <Plus className="w-5 h-5 text-blue-600" />
+            </button>
+          </div>
+          
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search chats..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Chat List */}
+        <div className="flex-1 overflow-y-auto">
+          {filteredChats.map((chat) => (
+            <div
+              key={chat.id}
+              onClick={() => setSelectedChat(chat)}
+              className={`p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 ${
+                selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-lg">
+                      {chat.name?.charAt(0).toUpperCase() || '?'}
+                    </span>
+                  </div>
+                  {chat.type === 'direct' && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-900 truncate">
+                      {chat.name}
+                    </h3>
+                    <span className="text-xs text-gray-500">
+                      {chat.lastMessageAt?.toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 truncate">
+                    Last message preview...
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {selectedChat ? (
+          <>
+            {/* Chat Header */}
+            <div className="bg-white border-b border-gray-200 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold">
+                      {selectedChat.name?.charAt(0).toUpperCase() || '?'}
+                    </span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {selectedChat.name}
+                    </h2>
+                    <p className="text-sm text-green-600">Online</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <Phone className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <Video className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <MoreVertical className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((msg) => {
+                const isOwnMessage = msg.senderId === '1';
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        isOwnMessage
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-900'
+                      }`}
+                    >
+                      <p className="text-sm">{msg.content}</p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          isOwnMessage ? 'text-blue-100' : 'text-gray-500'
+                        }`}
+                      >
+                        {msg.timestamp.toLocaleTimeString([], { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Message Input */}
+            <div className="bg-white border-t border-gray-200 p-4">
+              <div className="flex items-center space-x-3">
+                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <Plus className="w-5 h-5 text-gray-600" />
+                </button>
+                
+                <div className="flex-1 relative">
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type a message..."
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    rows={1}
+                    style={{ minHeight: '40px', maxHeight: '120px' }}
+                  />
+                </div>
+                
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!message.trim()}
+                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Select a chat to start messaging
+              </h3>
+              <p className="text-gray-500">
+                Choose a conversation from the sidebar to begin
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

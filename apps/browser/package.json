@@ -1,17 +1,24 @@
 {
-  "name": "browser",
+  "name": "@chat-app/browser",
   "version": "0.1.0",
+  "description": "Next.js web application for the chat application",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@chat-app/types": "file:../../packages/types",
+    "@chat-app/schemas": "file:../../packages/schemas",
+    "@chat-app/utils": "file:../../packages/utils",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.4"
+    "next": "15.5.4",
+    "socket.io-client": "^4.8.1",
+    "lucide-react": "^0.469.0"
   },
   "devDependencies": {
     "typescript": "^5",

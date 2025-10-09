@@ -1,67 +1,45 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "nodenext",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "outDir": "dist",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": true,
     "skipLibCheck": true,
-    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@root/*": [
-        "./*"
-      ],
-      "@backend/*": [
-        "app/backend/src/*"
-      ],
-      "@web/*": [
-        "app/web/src/*"
-      ],
-      "@mobile/*": [
-        "app/mobile/src/*"
-      ],
-      "@schemas/*": [
-        "packages/schemas/*"
-      ],
-      "@types/*": [
-        "packages/types/*"
-      ],
-      "@utils/*": [
-        "packages/utils/*"
-      ]
+      "@/*": ["./*"],
+      "@root/*": ["./*"],
+      "@backend/*": ["apps/backend/src/*"],
+      "@browser/*": ["apps/browser/src/*"],
+      "@mobile/*": ["apps/mobile/*"],
+      "@schemas/*": ["packages/schemas/*"],
+      "@types/*": ["packages/types/*"],
+      "@utils/*": ["packages/utils/*"]
     }
   },
   "include": [
-    "app/backend/src/**/*",
-    "app/web/src/**/*",
-    "app/mobile/src/**/*",
-    "packages/schemas/**/*",
-    "packages/types/**/*",
-    "packages/utils/**/*"
-, "config.ts"  ],
+    "apps/**/*",
+    "packages/**/*",
+    "config.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "**/node_modules/**"
   ]
 }

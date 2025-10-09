@@ -1,4 +1,21 @@
 {
-  "name": "utils",
-  "version": "1.0.0"
+  "name": "@chat-app/utils",
+  "version": "1.0.0",
+  "description": "Shared utility functions for the chat application",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./api": "./api.ts",
+    "./auth": "./auth.ts",
+    "./validation": "./validation.ts",
+    "./format": "./format.ts"
+  },
+  "dependencies": {
+    "@chat-app/types": "file:../types",
+    "@chat-app/schemas": "file:../schemas"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
 }

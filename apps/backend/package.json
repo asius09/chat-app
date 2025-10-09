@@ -1,6 +1,7 @@
 {
-  "name": "backend",
+  "name": "@chat-app/backend",
   "version": "1.0.0",
+  "description": "Backend API server for the chat application",
   "type": "module",
   "main": "app.ts",
   "scripts": {
@@ -8,12 +9,17 @@
     "start": "node dist/app.js",
     "dev": "nodemon app.ts",
     "prettier": "prettier --check .",
-    "prettier:write": "prettier --write ."
+    "prettier:write": "prettier --write .",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
   },
   "imports": {
     "@/*": "./src/*"
   },
   "dependencies": {
+    "@chat-app/types": "file:../../packages/types",
+    "@chat-app/schemas": "file:../../packages/schemas",
+    "@chat-app/utils": "file:../../packages/utils",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
