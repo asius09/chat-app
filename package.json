@@ -1,13 +1,19 @@
 {
+  "name": "chat-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:browser\"",
-    "dev:backend": "npm run dev --workspace=backend",
-    "dev:browser": "npm run dev --workspace=browser",
-    "dev:mobile": "npm run start --workspace=mobile",
+    "dev:backend": "npm run dev --workspace=@chat-app/backend",
+    "dev:browser": "npm run dev --workspace=@chat-app/browser",
+    "dev:mobile": "npm run start --workspace=@chat-app/mobile",
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:browser\" \"npm run dev:mobile\"",
     "build": "npm run build --workspaces",
-    "build:backend": "npm run build --workspace=backend",
-    "build:browser": "npm run build --workspace=browser",
+    "build:backend": "npm run build --workspace=@chat-app/backend",
+    "build:browser": "npm run build --workspace=@chat-app/browser",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
     "type-check": "tsc --noEmit",
