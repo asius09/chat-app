@@ -1,27 +1,10 @@
 {
-  "name": "chat-app",
-  "version": "1.0.0",
-  "description": "A modern chat application with React Native, Next.js, and Node.js",
-  "homepage": "https://github.com/asius09/chat-app#readme",
-  "bugs": {
-    "url": "https://github.com/asius09/chat-app/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/asius09/chat-app.git"
-  },
-  "license": "ISC",
-  "author": "asius",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:browser\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:browser": "npm run dev --workspace=browser",
     "dev:mobile": "npm run start --workspace=mobile",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:browser\" \"npm run dev:mobile\"",
     "build": "npm run build --workspaces",
     "build:backend": "npm run build --workspace=backend",
     "build:browser": "npm run build --workspace=browser",
