@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '@/helpers/token.js';
 import { ResponseBuilder } from '@/helpers/createResponse.js';
+import { User } from '@/models/user.model.js';
 
 /**
  * Middleware to verify JWT access token and attach user info to req.user.
@@ -51,5 +52,39 @@ export function verifyUser(req: Request, res: Response, next: NextFunction) {
     return res
       .status(401)
       .json(ResponseBuilder.fail('Unauthorized', 'Invalid token'));
+  }
+}
+
+/**
+ * Middleware to ensure the current user is an admin.
+ * Requires verifyUser to have run before it.
+ */
+export async function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = (req as any).user?.userId as string | undefined;
+    if (!userId) {
+      return res
+        .status(401)
+        .json(ResponseBuilder.fail('Unauthorized', 'No user ID'));
+    }
+
+    const user = await User.findById(userId).select('role');
+    if (!user) {
+      return res.status(404).json(ResponseBuilder.fail('User not found'));
+    }
+
+    if (user.role !== 'admin') {
+      return res
+        .status(403)
+        .json(ResponseBuilder.fail('Forbidden', 'Admin privileges required'));
+    }
+
+    next();
+  } catch (err) {
+    next(err as Error);
   }
 }
