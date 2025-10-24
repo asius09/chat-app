@@ -34,7 +34,7 @@
     "apps/**/*",
     "packages/**/*",
     "config.ts"
-  ],
+, "node_modules/models"  ],
   "exclude": [
     "node_modules",
     "dist",
