@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { config } from './src/config.js';
+import { config } from '../../config';
 
 const MONGO_URI = config.MONGO_URI;
 

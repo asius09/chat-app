@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { ChatApiResponse } from '../types/response.type.ts';
+import type { ChatApiResponse } from '../../../../packages/types/response.type';
 import { ZodError } from 'zod';
-import { ResponseBuilder } from '@/helpers/createResponse.js';
+import { ResponseBuilder } from '../helpers/createResponse';
 
 // Centralized error handler middleware with error formatter
 export function errorHandler(

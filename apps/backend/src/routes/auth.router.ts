@@ -6,105 +6,50 @@ import {
   changePassword,
   forgetPassword,
   refresh,
-} from '@/controllers/auth.controller.js';
-import { verifyUser } from '@/middlewares/verifyUser.middleware.js';
+} from '../controllers/auth.controller';
+import { verifyUser } from '../middlewares/verifyUser.middleware';
+import { validate } from '../middlewares/validation.middleware';
 import { z } from 'zod';
 
-const router = Router();
-
-// Simple Zod validation middleware
-function validate<T extends z.ZodTypeAny>(schema: T) {
-  return (req: any, res: any, next: any) => {
-    const result = schema.safeParse(req.body);
-    if (!result.success) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        error: result.error.errors.map((e) => e.message).join('; '),
-        timestamp: new Date(),
-      });
-    }
-    req.body = result.data;
-    next();
-  };
-}
-
-// Lightweight in-memory rate limiter (per IP + route)
-const windowMs = 60_000; // 1 minute
-const maxRequests = 20; // per window per route per IP
-const buckets = new Map<string, { count: number; resetAt: number }>();
-
-function rateLimit() {
-  return (req: any, res: any, next: any) => {
-    const ip = (req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').toString();
-    const key = `${ip}:${req.method}:${req.originalUrl}`;
-    const now = Date.now();
-    const entry = buckets.get(key);
-
-    if (!entry || now > entry.resetAt) {
-      buckets.set(key, { count: 1, resetAt: now + windowMs });
-      return next();
-    }
-
-    if (entry.count >= maxRequests) {
-      const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
-      res.setHeader('Retry-After', retryAfter);
-      return res.status(429).json({
-        success: false,
-        message: 'Too many requests',
-        error: 'Rate limit exceeded',
-        timestamp: new Date(),
-      });
-    }
-
-    entry.count += 1;
-    buckets.set(key, entry);
-    next();
-  };
-}
-
-// Schemas
-const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+// Re-declare request validation schemas to match those in auth.controller.ts for router-level validation
+const signupSchema = z.object({
+  username: z.string().min(2),
+  email: z.email(),
+  password: z.string().min(6),
 });
 
-const refreshSchema = z
-  .object({
-    refreshToken: z.string().min(10, 'Refresh token required'),
-  })
-  .partial(); // allow empty to support header-based refresh token
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1),
+});
 
 const changePasswordSchema = z.object({
-  oldPassword: z.string().min(6),
+  oldPassword: z.string().min(1),
   newPassword: z.string().min(6),
 });
 
 const forgetPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email(),
 });
 
+const router = Router();
+
 // Signup
-router.post('/signup', rateLimit(), signup);
+router.post('/signup', validate(signupSchema), signup);
 
 // Login
-router.post('/login', rateLimit(), validate(loginSchema), login);
+router.post('/login', validate(loginSchema), login);
 
-// Refresh Token (no verifyUser — client may not have a valid access token here)
-router.post('/refresh', rateLimit(), validate(refreshSchema), refresh);
+// Refresh Token (stateless: for demo only)
+router.post('/refresh', refresh);
 
-// Logout
+// Logout (just a client-side token discard)
 router.post('/logout', verifyUser, logout);
 
-// Change Password (protected route)
-router.post(
-  '/change-password',
-  verifyUser,
-  validate(changePasswordSchema),
-  changePassword
-);
+// Change Password (requires verified user)
+router.post('/change-password', verifyUser, validate(changePasswordSchema), changePassword);
 
-// Forget Password
-router.post('/forget-password', rateLimit(), validate(forgetPasswordSchema), forgetPassword);
+// Forget Password (stateless: just returns a message)
+router.post('/forget-password', validate(forgetPasswordSchema), forgetPassword);
 
 export default router;

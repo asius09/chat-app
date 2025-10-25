@@ -15,11 +15,25 @@ app.use(express.json());
 // Enable CORS for web and Expo clients
 app.use(cors({ origin: '*', credentials: false }));
 
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.json({ status: "ok", message: "API is working" });
+});
+
 // Register API routes
 app.use('/api/auth', authRouter);
 
 // Register your routes here
 // e.g. app.use('/api/users', userRoutes);
+
+// Handle 404 (Not Found) for any unmatched routes
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    error: "Not Found",
+    message: "The requested resource was not found"
+  });
+});
 
 app.use(errorHandler);
 
