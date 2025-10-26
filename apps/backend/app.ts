@@ -6,6 +6,7 @@ import { connectDB } from './db.js';
 import { errorHandler } from "./src/middlewares/errorHandler.js"
 import cors from 'cors';
 import authRouter from './src/routes/auth.router.js';
+import groupRouter from './src/routes/group.router.js';
 
 const PORT = config.PORT;
 
@@ -22,9 +23,7 @@ app.get('/api/health', (req, res) => {
 
 // Register API routes
 app.use('/api/auth', authRouter);
-
-// Register your routes here
-// e.g. app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRouter);
 
 // Handle 404 (Not Found) for any unmatched routes
 app.use((req, res, next) => {
