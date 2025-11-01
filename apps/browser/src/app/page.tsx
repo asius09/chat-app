@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { MessageCircle, Phone, Video, MoreVertical, Search, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { MessageCircle, Phone, Video, MoreVertical, Search, Plus, Users } from 'lucide-react';
 import type { Chat, Message } from '@chat-app/types';
 
+// Mock data with group and direct
 const mockChats: Chat[] = [
   {
     id: '1',
@@ -29,6 +30,16 @@ const mockChats: Chat[] = [
     id: '3',
     name: 'Jane Smith',
     type: 'direct',
+    participants: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: '1',
+    lastMessageAt: new Date(),
+  },
+  {
+    id: '4',
+    name: 'Study Group',
+    type: 'group',
     participants: [],
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -86,6 +97,11 @@ export default function ChatApp() {
     chat.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Split chats for simple group/direct toggle
+  const directChats = filteredChats.filter(chat => chat.type === 'direct');
+  const groupChats = filteredChats.filter(chat => chat.type === 'group');
+  const [chatView, setChatView] = useState<'direct' | 'group'>('direct');
+
   const handleSendMessage = () => {
     if (message.trim() && selectedChat) {
       const newMessage: Message = {
@@ -97,7 +113,7 @@ export default function ChatApp() {
         timestamp: new Date(),
         isRead: false,
       };
-      
+
       setMessages(prev => [...prev, newMessage]);
       setMessage('');
     }
@@ -115,68 +131,104 @@ export default function ChatApp() {
       {/* Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Chats</h1>
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-xl font-bold text-gray-900">Chats</h1>
+            <button className="p-2 hover:bg-gray-100 rounded transition-colors">
               <Plus className="w-5 h-5 text-blue-600" />
             </button>
           </div>
-          
+          {/* Simple direct/group switch */}
+          <div className="flex items-center mb-3 space-x-2">
+            <button
+              className={`flex-1 py-1 rounded ${chatView === 'direct' ? 'bg-blue-100 text-blue-700 font-semibold' : 'bg-gray-100 text-gray-700'}`}
+              onClick={() => setChatView('direct')}
+            >
+              Direct
+            </button>
+            <button
+              className={`flex-1 py-1 rounded ${chatView === 'group' ? 'bg-blue-100 text-blue-700 font-semibold' : 'bg-gray-100 text-gray-700'}`}
+              onClick={() => setChatView('group')}
+            >
+              Groups
+            </button>
+          </div>
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search chats..."
+              placeholder={`Search ${chatView === 'group' ? 'groups' : 'chats'}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-8 pr-2 py-1 border border-gray-200 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
         </div>
 
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto">
-          {filteredChats.map((chat) => (
-            <div
-              key={chat.id}
-              onClick={() => setSelectedChat(chat)}
-              className={`p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 ${
-                selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-lg">
-                      {chat.name?.charAt(0).toUpperCase() || '?'}
-                    </span>
+          {chatView === 'group'
+            ? groupChats.length > 0
+              ? groupChats.map(chat => (
+                  <div
+                    key={chat.id}
+                    onClick={() => setSelectedChat(chat)}
+                    className={`p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition ${
+                      selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-9 h-9 bg-green-600 rounded-full flex items-center justify-center">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-gray-900 truncate">{chat.name}</span>
+                          <span className="text-xs text-gray-500">
+                            {chat.lastMessageAt?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  {chat.type === 'direct' && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                  )}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">
-                      {chat.name}
-                    </h3>
-                    <span className="text-xs text-gray-500">
-                      {chat.lastMessageAt?.toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </span>
+                ))
+              : (
+                <p className="p-4 text-sm text-gray-500 text-center">No groups found</p>
+              )
+            : directChats.length > 0
+            ? directChats.map(chat => (
+                <div
+                  key={chat.id}
+                  onClick={() => setSelectedChat(chat)}
+                  className={`p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition ${
+                    selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <div className="relative w-9 h-9">
+                      <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-base">
+                          {chat.name?.charAt(0).toUpperCase() || '?'}
+                        </span>
+                      </div>
+                      {chat.type === 'direct' && (
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-gray-900 truncate">{chat.name}</span>
+                        <span className="text-xs text-gray-500">
+                          {chat.lastMessageAt?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-500 truncate">
-                    Last message preview...
-                  </p>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))
+            : <p className="p-4 text-sm text-gray-500 text-center">No chats found</p>
+          }
         </div>
       </div>
 
@@ -185,39 +237,41 @@ export default function ChatApp() {
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white border-b border-gray-200 p-4">
+            <div className="bg-white border-b border-gray-200 p-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold">
-                      {selectedChat.name?.charAt(0).toUpperCase() || '?'}
-                    </span>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  {selectedChat.type === 'group' ? (
+                    <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold">{selectedChat.name?.charAt(0).toUpperCase() || '?'}</span>
+                    </div>
+                  )}
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-base font-semibold text-gray-900">
                       {selectedChat.name}
                     </h2>
-                    <p className="text-sm text-green-600">Online</p>
+                    <p className="text-xs text-green-600">{selectedChat.type === 'group' ? 'Group' : 'Online'}</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <Phone className="w-5 h-5 text-gray-600" />
+                <div className="flex items-center space-x-1">
+                  <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                    <Phone className="w-4 h-4 text-gray-600" />
                   </button>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <Video className="w-5 h-5 text-gray-600" />
+                  <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                    <Video className="w-4 h-4 text-gray-600" />
                   </button>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <MoreVertical className="w-5 h-5 text-gray-600" />
+                  <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                    <MoreVertical className="w-4 h-4 text-gray-600" />
                   </button>
                 </div>
               </div>
             </div>
-
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => {
+            <div className="flex-1 overflow-y-auto p-3 space-y-4 bg-gray-50">
+              {messages.filter(msg => msg.chatId === selectedChat.id).map((msg) => {
                 const isOwnMessage = msg.senderId === '1';
                 return (
                   <div
@@ -225,21 +279,21 @@ export default function ChatApp() {
                     className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      className={`max-w-xs px-3 py-2 rounded-lg ${
                         isOwnMessage
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-900'
+                          : 'bg-white border border-gray-200 text-gray-900'
                       }`}
                     >
                       <p className="text-sm">{msg.content}</p>
                       <p
                         className={`text-xs mt-1 ${
-                          isOwnMessage ? 'text-blue-100' : 'text-gray-500'
+                          isOwnMessage ? 'text-blue-100' : 'text-gray-400'
                         }`}
                       >
-                        {msg.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
+                        {msg.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
                         })}
                       </p>
                     </div>
@@ -247,30 +301,27 @@ export default function ChatApp() {
                 );
               })}
             </div>
-
             {/* Message Input */}
-            <div className="bg-white border-t border-gray-200 p-4">
-              <div className="flex items-center space-x-3">
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <div className="bg-white border-t border-gray-200 p-3">
+              <div className="flex items-center space-x-2">
+                <button className="p-2 hover:bg-gray-100 rounded transition-colors">
                   <Plus className="w-5 h-5 text-gray-600" />
                 </button>
-                
                 <div className="flex-1 relative">
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type a message..."
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
                     rows={1}
-                    style={{ minHeight: '40px', maxHeight: '120px' }}
+                    style={{ minHeight: '32px', maxHeight: '96px' }}
                   />
                 </div>
-                
                 <button
                   onClick={handleSendMessage}
                   disabled={!message.trim()}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
                 </button>
@@ -281,10 +332,10 @@ export default function ChatApp() {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Select a chat to start messaging
+              <h3 className="text-base font-semibold text-gray-900 mb-1">
+                Select a chat or group
               </h3>
-              <p className="text-gray-500">
+              <p className="text-gray-500 text-sm">
                 Choose a conversation from the sidebar to begin
               </p>
             </div>
