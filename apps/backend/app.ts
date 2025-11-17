@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import http from 'http';
 import { Server } from 'socket.io';
 import { config } from '../../config.js';
@@ -9,12 +9,17 @@ import authRouter from './src/routes/auth.router.js';
 import groupRouter from './src/routes/group.router.js';
 
 const PORT = config.PORT;
+const app: Express = express();
 
 connectDB();
-const app = express();
+
 app.use(express.json());
+
 // Enable CORS for web and Expo clients
 app.use(cors({ origin: '*', credentials: false }));
+
+// Set up middlewares
+app.use(errorHandler);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -33,8 +38,6 @@ app.use((req, res, next) => {
     message: "The requested resource was not found"
   });
 });
-
-app.use(errorHandler);
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
